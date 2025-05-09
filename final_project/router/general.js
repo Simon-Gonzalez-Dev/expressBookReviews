@@ -18,9 +18,20 @@ public_users.get('/',function (req, res) {
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
- });
+    // Get the ISBN from request parameters
+    const isbn = req.params.isbn;
+    
+    // Find the book with the matching ISBN
+    const book = books[isbn];
+    
+    if (book) {
+        // Return the book details if found
+        return res.status(200).send(JSON.stringify(book, null, 4));
+    } else {
+        // Return error if book not found
+        return res.status(404).json({ message: "Book not found" });
+    }
+});
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
