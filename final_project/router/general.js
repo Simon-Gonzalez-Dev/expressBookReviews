@@ -55,21 +55,36 @@ public_users.get('/', function (req, res) {
         });
 });
 
-// Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-    // Get the ISBN from request parameters
-    const isbn = req.params.isbn;
-    
-    // Find the book with the matching ISBN
-    const book = books[isbn];
-    
-    if (book) {
-        // Return the book details if found
-        return res.status(200).send(JSON.stringify(book, null, 4));
-    } else {
-        // Return error if book not found
-        return res.status(404).json({ message: "Book not found" });
-    }
+// Get book details based on ISBN using Promise
+public_users.get('/isbn/:isbn', function (req, res) {
+    // Create a Promise to handle the book retrieval
+    const getBookByISBN = new Promise((resolve, reject) => {
+        // Get the ISBN from request parameters
+        const isbn = req.params.isbn;
+        
+        // Simulate some processing time
+        setTimeout(() => {
+            // Find the book with the matching ISBN
+            const book = books[isbn];
+            
+            if (book) {
+                resolve(book);
+            } else {
+                reject(new Error("Book not found"));
+            }
+        }, 100);
+    });
+
+    // Handle the Promise
+    getBookByISBN
+        .then((book) => {
+            // Return the book details if found
+            return res.status(200).send(JSON.stringify(book, null, 4));
+        })
+        .catch((error) => {
+            // Return error if book not found
+            return res.status(404).json({ message: error.message });
+        });
 });
   
 // Get book details based on author
