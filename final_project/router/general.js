@@ -35,8 +35,27 @@ public_users.get('/isbn/:isbn',function (req, res) {
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    // Get the author from request parameters
+    const author = req.params.author;
+    
+    // Get all book IDs
+    const bookIds = Object.keys(books);
+    
+    // Find books by the specified author
+    const booksByAuthor = bookIds.filter(id => 
+        books[id].author.toLowerCase() === author.toLowerCase()
+    ).map(id => ({
+        isbn: id,
+        ...books[id]
+    }));
+    
+    if (booksByAuthor.length > 0) {
+        // Return the books if found
+        return res.status(200).send(JSON.stringify(booksByAuthor, null, 4));
+    } else {
+        // Return error if no books found
+        return res.status(404).json({ message: "No books found for this author" });
+    }
 });
 
 // Get all books based on title
