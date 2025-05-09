@@ -127,29 +127,44 @@ public_users.get('/author/:author', function (req, res) {
         });
 });
 
-// Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-    // Get the title from request parameters
-    const title = req.params.title;
-    
-    // Get all book IDs
-    const bookIds = Object.keys(books);
-    
-    // Find books by the specified title
-    const booksByTitle = bookIds.filter(id => 
-        books[id].title.toLowerCase() === title.toLowerCase()
-    ).map(id => ({
-        isbn: id,
-        ...books[id]
-    }));
-    
-    if (booksByTitle.length > 0) {
-        // Return the books if found
-        return res.status(200).send(JSON.stringify(booksByTitle, null, 4));
-    } else {
-        // Return error if no books found
-        return res.status(404).json({ message: "No books found with this title" });
-    }
+// Get all books based on title using Promise
+public_users.get('/title/:title', function (req, res) {
+    // Create a Promise to handle the book retrieval
+    const getBooksByTitle = new Promise((resolve, reject) => {
+        // Get the title from request parameters
+        const title = req.params.title;
+        
+        // Simulate some processing time
+        setTimeout(() => {
+            // Get all book IDs
+            const bookIds = Object.keys(books);
+            
+            // Find books by the specified title
+            const booksByTitle = bookIds.filter(id => 
+                books[id].title.toLowerCase() === title.toLowerCase()
+            ).map(id => ({
+                isbn: id,
+                ...books[id]
+            }));
+            
+            if (booksByTitle.length > 0) {
+                resolve(booksByTitle);
+            } else {
+                reject(new Error("No books found with this title"));
+            }
+        }, 100);
+    });
+
+    // Handle the Promise
+    getBooksByTitle
+        .then((booksByTitle) => {
+            // Return the books if found
+            return res.status(200).send(JSON.stringify(booksByTitle, null, 4));
+        })
+        .catch((error) => {
+            // Return error if no books found
+            return res.status(404).json({ message: error.message });
+        });
 });
 
 //  Get book review
